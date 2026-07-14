@@ -1,25 +1,47 @@
 import Link from "next/link";
-import { getDashboardData } from "@/lib/data";
+import { getAccountOptions, getDashboardData } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, ColorDot, EmptyState, PageHeader, StatTile } from "@/components/ui";
 import { MonthlyTrendChart } from "@/components/MonthlyTrendChart";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
+import { AccountSelector } from "@/components/AccountSelector";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-  const data = await getDashboardData();
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ account?: string }>;
+}) {
+  const { account: accountId } = await searchParams;
+  const [accountOptions, data] = await Promise.all([
+    getAccountOptions(),
+    getDashboardData(accountId),
+  ]);
+  const selectedAccount = accountOptions.find((a) => a.id === accountId);
   const savings = data.incomeThisMonth - data.expenseThisMonth;
 
   return (
     <div>
+      {accountOptions.length > 0 && (
+        <div className="mb-3">
+          <AccountSelector accounts={accountOptions} selectedId={accountId} />
+        </div>
+      )}
       <PageHeader
         title="Übersicht"
-        description="Dein Vermögen und deine Ein- und Ausgaben im Blick."
+        description={
+          selectedAccount
+            ? `Saldo und Bewegungen für „${selectedAccount.name}“.`
+            : "Dein Vermögen und deine Ein- und Ausgaben im Blick."
+        }
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatTile label="Gesamtvermögen" value={formatCurrency(data.totalBalance)} />
+        <StatTile
+          label={selectedAccount ? "Saldo" : "Gesamtvermögen"}
+          value={formatCurrency(data.totalBalance)}
+        />
         <StatTile label="Einnahmen diesen Monat" value={formatCurrency(data.incomeThisMonth)} tone="good" />
         <StatTile label="Ausgaben diesen Monat" value={formatCurrency(data.expenseThisMonth)} tone="critical" />
       </div>
@@ -40,7 +62,7 @@ export default async function DashboardPage() {
 
         <Card>
           <h2 className="mb-4 text-sm font-medium" style={{ color: "var(--foreground-secondary)" }}>
-            Konten
+            {selectedAccount ? "Konto" : "Konten"}
           </h2>
           <div className="flex flex-col gap-3">
             {data.accounts.map((account) => (

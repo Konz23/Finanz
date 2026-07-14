@@ -80,20 +80,21 @@ function monthKey(date: Date) {
   return date.toISOString().slice(0, 7);
 }
 
-export async function getDashboardData() {
+export async function getDashboardData(accountId?: string) {
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
   const nowMonth = currentMonth();
 
-  const [accounts, transactions] = await Promise.all([
+  const [allAccounts, transactions] = await Promise.all([
     getAccountsWithBalance(),
     prisma.transaction.findMany({
-      where: { date: { gte: sixMonthsAgo } },
+      where: { date: { gte: sixMonthsAgo }, accountId: accountId || undefined },
       include: { category: true },
       orderBy: { date: "desc" },
     }),
   ]);
 
+  const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
   const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
 
   const thisMonthTx = transactions.filter((t) => monthKey(t.date) === nowMonth);
