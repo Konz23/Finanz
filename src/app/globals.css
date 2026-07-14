@@ -2,9 +2,9 @@
 
 :root {
   color-scheme: light;
-  --background: #f9f9f7;
-  --surface: #fcfcfb;
-  --surface-hover: #f2f1ee;
+  --background: #fdf6d8;
+  --surface: #fffdf5;
+  --surface-hover: #fbf1c7;
   --foreground: #0b0b0b;
   --foreground-secondary: #52514e;
   --foreground-muted: #898781;
@@ -36,9 +36,9 @@
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --background: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-hover: #232322;
+    --background: #1a1710;
+    --surface: #211d15;
+    --surface-hover: #2b2619;
     --foreground: #ffffff;
     --foreground-secondary: #c3c2b7;
     --foreground-muted: #898781;
@@ -63,9 +63,9 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #0d0d0d;
-  --surface: #1a1a19;
-  --surface-hover: #232322;
+  --background: #1a1710;
+  --surface: #211d15;
+  --surface-hover: #2b2619;
   --foreground: #ffffff;
   --foreground-secondary: #c3c2b7;
   --foreground-muted: #898781;
