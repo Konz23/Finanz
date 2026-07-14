@@ -1,0 +1,73 @@
+// Finanzverwaltung - Datenmodell
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  name           String
+  type           String        @default("Girokonto")
+  color          String        @default("#6366f1")
+  startBalance   Float         @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  transactions   Transaction[]
+}
+
+model Category {
+  id           String            @id @default(cuid())
+  name         String
+  type         TransactionType
+  color        String            @default("#6366f1")
+  icon         String            @default("circle")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([name, type])
+}
+
+model Transaction {
+  id          String           @id @default(cuid())
+  amount      Float
+  type        TransactionType
+  description String
+  date        DateTime
+  accountId   String
+  categoryId  String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  month      String
+  amount     Float
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, month])
+}
